@@ -2,7 +2,7 @@ import { useSearch } from "./hooks";
 import { VacancyCard } from "./components/VacancyCard";
 
 export const VacanciesList = () => {
-  const vacancies = useSearch();
+  const { data: { objects: vacancies = [] } = {} } = useSearch();
 
   return (
     <ul>

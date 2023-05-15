@@ -1,7 +1,31 @@
-import { Vacancy } from "../types";
+import { dehydrate, QueryClient, useQuery } from "@tanstack/react-query";
+import { axiosInstance } from "@/shared/api/superjob/axiosInstance";
+import { SearchResponse, Vacancy } from "../types";
 
-export const useSearch = (): Array<Vacancy> => {
-  return VACANCIES_LIST;
+export const DEFAULT_SEARCH_PARAMS = {
+  page: process.env.NEXT_PUBLIC_SEARCH_RESULTS_DEFAULT_PAGE ?? "0",
+  count: process.env.NEXT_PUBLIC_SEARCH_RESULTS_DEFAULT_COUNT ?? "4",
+};
+
+export const getVacancies = (params: SearchParams = DEFAULT_SEARCH_PARAMS) => {
+  return axiosInstance<SearchResponse>({
+    url: `/vacancies/`,
+    method: "get",
+    params: new URLSearchParams(params as Record<string, string>),
+  });
+};
+
+interface SearchParams {
+  count?: string;
+  page?: string;
+}
+
+export const useSearch = (params: SearchParams = DEFAULT_SEARCH_PARAMS) => {
+  return useQuery({
+    queryKey: ["vacancies", params],
+    queryFn: () => getVacancies(params),
+    staleTime: 1000 * 60 * 1,
+  });
 };
 
 const VACANCIES_LIST: Array<Vacancy> = [
