@@ -4,8 +4,28 @@ import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
 
 import { VacanciesList } from "@/features/shared/components/VacanciesList";
+import {
+  getVacancies,
+  DEFAULT_SEARCH_PARAMS,
+} from "@/features/shared/components/VacanciesList/hooks";
 
 const inter = Inter({ subsets: ["latin"] });
+
+import { dehydrate, QueryClient, useQuery } from "@tanstack/react-query";
+
+export async function getServerSideProps() {
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery(["vacancies", DEFAULT_SEARCH_PARAMS], () =>
+    getVacancies(DEFAULT_SEARCH_PARAMS)
+  );
+
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+    },
+  };
+}
 
 export default function Home() {
   return (
