@@ -3,8 +3,8 @@ import { axiosInstance } from "@/shared/api/superjob/axiosInstance";
 import { SearchResponse, Vacancy } from "../types";
 
 export const DEFAULT_SEARCH_PARAMS = {
-  page: process.env.NEXT_PUBLIC_SEARCH_RESULTS_DEFAULT_PAGE ?? "0",
-  count: process.env.NEXT_PUBLIC_SEARCH_RESULTS_DEFAULT_COUNT ?? "4",
+  page: Number(process.env.NEXT_PUBLIC_SEARCH_RESULTS_DEFAULT_PAGE) ?? 0,
+  count: Number(process.env.NEXT_PUBLIC_SEARCH_RESULTS_DEFAULT_COUNT) ?? 4,
 };
 
 export const getVacancies = (params: SearchParams = DEFAULT_SEARCH_PARAMS) => {
@@ -16,8 +16,8 @@ export const getVacancies = (params: SearchParams = DEFAULT_SEARCH_PARAMS) => {
 };
 
 interface SearchParams {
-  count?: string;
-  page?: string;
+  count?: number;
+  page?: number;
 }
 
 export const useSearch = (params: SearchParams = DEFAULT_SEARCH_PARAMS) => {
@@ -25,6 +25,7 @@ export const useSearch = (params: SearchParams = DEFAULT_SEARCH_PARAMS) => {
     queryKey: ["vacancies", params],
     queryFn: () => getVacancies(params),
     staleTime: 1000 * 60 * 1,
+    keepPreviousData: true,
   });
 };
 
