@@ -1,20 +1,37 @@
-import React from 'react';
-import { useSearch, DEFAULT_SEARCH_PARAMS } from '@/shared/api/superjob/hooks';
-import { VacancyCard } from './components/VacancyCard';
-import { Pagination, Button } from '@mantine/core';
-import Cookie from 'js-cookie';
+import React from "react";
+import {
+  useSearch,
+  DEFAULT_SEARCH_PARAMS,
+} from "@/features/shared/api/superjob/hooks";
+import { VacancyCard } from "../../../shared/components/VacancyCard/VacancyCard";
+import { Pagination, Button } from "@mantine/core";
+import Cookie from "js-cookie";
 
-export const VacanciesList = () => {
+interface FavoritesListProps {
+  filters?: {
+    ids?: number[];
+  };
+  enabled?: boolean;
+}
+
+export const FavoritesList = ({
+  filters = {},
+  enabled = true,
+}: FavoritesListProps) => {
   const [page, setPage] = React.useState(DEFAULT_SEARCH_PARAMS.page + 1);
   const [count] = React.useState(DEFAULT_SEARCH_PARAMS.count);
-  const { data: { objects: vacancies = [], total = 0 } = {} } = useSearch({
-    page: page - 1,
-    count,
-  });
+  const { data: { objects: vacancies = [], total = 0 } = {} } = useSearch(
+    {
+      page: page - 1,
+      count,
+      ...filters,
+    },
+    { enabled }
+  );
   const [favorites, setFavorites] = React.useState<Set<number>>(new Set());
 
   React.useEffect(() => {
-    const favoritesFromCookie = JSON.parse(Cookie.get('favorites') || '[]');
+    const favoritesFromCookie = JSON.parse(Cookie.get("favorites") || "[]");
     setFavorites(new Set(favoritesFromCookie));
   }, []);
 
@@ -38,7 +55,7 @@ export const VacanciesList = () => {
                     : favorites.add(vacancy.id);
                   setFavorites(new Set(favorites));
                   Cookie.set(
-                    'favorites',
+                    "favorites",
                     JSON.stringify(Array.from(favorites)),
                     {
                       expires: 365,
@@ -46,7 +63,7 @@ export const VacanciesList = () => {
                   );
                 }}
               >
-                {isFavorite ? 'Remove' : 'Add'}
+                {isFavorite ? "Remove" : "Disabled"}
               </Button>
             </li>
           );
