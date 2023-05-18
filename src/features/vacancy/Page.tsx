@@ -2,20 +2,20 @@ import {
   DEFAULT_SEARCH_PARAMS,
   getVacancies,
   useSearch,
-} from "@/features/shared/api/superjob/hooks";
+} from '@/features/shared/api/superjob/hooks';
 import {
   DehydratedState,
   QueryClient,
   dehydrate,
   useQueryClient,
-} from "@tanstack/react-query";
-import { GetServerSideProps } from "next";
-import { useRouter } from "next/router";
+} from '@tanstack/react-query';
+import { GetServerSideProps } from 'next';
+import { useRouter } from 'next/router';
 
 export const getServerSideProps: GetServerSideProps<{
   dehydratedState: DehydratedState;
 }> = async ({ params, req }) => {
-  const isFirstServerCall = !req?.url?.startsWith("/_next/data/");
+  const isFirstServerCall = !req?.url?.startsWith('/_next/data/');
   const queryClient = new QueryClient();
   // console.log(req.url);
   const id = Number(params?.id);
@@ -23,14 +23,14 @@ export const getServerSideProps: GetServerSideProps<{
     return {
       redirect: {
         permanent: false,
-        destination: "/",
+        destination: '/',
       },
       props: {},
     };
   }
 
   if (isFirstServerCall) {
-    await queryClient.prefetchQuery(["vacancies", { ids: [id] }], () =>
+    await queryClient.prefetchQuery(['vacancies', { ids: [id] }], () =>
       getVacancies({ ids: [id] })
     );
   }
@@ -52,7 +52,7 @@ export function Page() {
       // @ts-expect-error
       initialData: () => {
         const d = queryClient
-          .getQueriesData(["vacancies"])
+          .getQueriesData(['vacancies'])
           ?.find(([, data]) => {
             console.log(data);
             // @ts-expect-error
@@ -62,7 +62,7 @@ export function Page() {
             );
             return vacancy;
           });
-        console.log("----", d);
+        console.log('----', d);
         return {
           // @ts-expect-error
           ...d[1],
@@ -78,7 +78,7 @@ export function Page() {
   return (
     <div
       dangerouslySetInnerHTML={{
-        __html: data?.objects[0].vacancyRichText || "",
+        __html: data?.objects[0].vacancyRichText || '',
       }}
     ></div>
   );
