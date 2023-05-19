@@ -44,6 +44,7 @@ interface SearchParams {
   count?: number;
   page?: number;
   ids?: Array<number>;
+  keyword?: string;
 }
 
 const VACANCIES_LIST: Array<Vacancy> = [

@@ -10,6 +10,7 @@ import Cookie from "js-cookie";
 interface VacanciesListProps {
   filters?: {
     ids?: number[];
+    keyword?: string;
   };
   enabled?: boolean;
 }
