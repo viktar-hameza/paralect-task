@@ -1,11 +1,15 @@
 import React from "react";
+import Cookie from "js-cookie";
+
+import { Pagination, Button } from "@mantine/core";
+
 import {
   useSearch,
   DEFAULT_SEARCH_PARAMS,
 } from "@/features/shared/api/superjob/hooks";
-import { VacancyCard } from "../../../shared/components/VacancyCard/VacancyCard";
-import { Pagination, Button } from "@mantine/core";
-import Cookie from "js-cookie";
+import { useFavorites } from "@/features/shared/components/FavoritesProvider";
+
+import { VacancyCard } from "@/features/shared/components/VacancyCard/VacancyCard";
 
 interface VacanciesListProps {
   filters?: {
@@ -29,12 +33,7 @@ export const VacanciesList = ({
     },
     { enabled }
   );
-  const [favorites, setFavorites] = React.useState<Set<number>>(new Set());
-
-  React.useEffect(() => {
-    const favoritesFromCookie = JSON.parse(Cookie.get("favorites") || "[]");
-    setFavorites(new Set(favoritesFromCookie));
-  }, []);
+  const favorites = useFavorites();
 
   const pagesTotal = React.useMemo(() => {
     return Math.ceil(total / count);
@@ -52,16 +51,8 @@ export const VacanciesList = ({
               <Button
                 onClick={() => {
                   isFavorite
-                    ? favorites.delete(vacancy.id)
+                    ? favorites.remove(vacancy.id)
                     : favorites.add(vacancy.id);
-                  setFavorites(new Set(favorites));
-                  Cookie.set(
-                    "favorites",
-                    JSON.stringify(Array.from(favorites)),
-                    {
-                      expires: 365,
-                    }
-                  );
                 }}
               >
                 {isFavorite ? "Remove" : "Add"}

@@ -18,14 +18,16 @@ export const getServerSideProps: GetServerSideProps<{
   const queryClient = new QueryClient();
 
   if (isFirstServerCall) {
-    await queryClient.prefetchQuery(["vacancies", DEFAULT_SEARCH_PARAMS], () =>
-      getVacancies(DEFAULT_SEARCH_PARAMS)
+    await queryClient.prefetchQuery(
+      ["vacancies", { ...DEFAULT_SEARCH_PARAMS, keyword: "" }],
+      () => getVacancies({ ...DEFAULT_SEARCH_PARAMS, keyword: "" })
     );
   }
 
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
+      favorites: JSON.parse(req.cookies.favorites || "[]"),
     },
   };
 };
