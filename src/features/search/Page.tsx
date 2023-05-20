@@ -3,24 +3,31 @@ import { GetServerSideProps } from "next";
 import Head from "next/head";
 import { dehydrate, QueryClient, DehydratedState } from "@tanstack/react-query";
 
-import {
-  getVacancies,
-  DEFAULT_SEARCH_PARAMS,
-} from "@/features/shared/api/superjob/hooks";
+import { DEFAULT_SEARCH_PARAMS } from "@/features/shared/api/superjob/hooks";
+
+import { getVacancies } from "../shared/api/superjob/requests";
 
 import { VacanciesList } from "@/features/search/components/VacanciesList";
 import { SearchForm } from "./components/SearchForm";
 
+import { getAuthAxiosConfig } from "../shared/helpers/auth";
+
 export const getServerSideProps: GetServerSideProps<{
   dehydratedState: DehydratedState;
-}> = async ({ req }) => {
+}> = async ({ req, res }) => {
   const isFirstServerCall = !req?.url?.startsWith("/_next/data/");
   const queryClient = new QueryClient();
+  const { headers, transformRequest } = getAuthAxiosConfig(req, res);
 
   if (isFirstServerCall) {
     await queryClient.prefetchQuery(
       ["vacancies", { ...DEFAULT_SEARCH_PARAMS, keyword: "" }],
-      () => getVacancies({ ...DEFAULT_SEARCH_PARAMS, keyword: "" })
+      () =>
+        getVacancies({
+          params: { ...DEFAULT_SEARCH_PARAMS, keyword: "" },
+          headers,
+          transformRequest,
+        })
     );
   }
 

@@ -1,3 +1,20 @@
+export interface ErrorResponse {
+  error: {
+    code: number;
+    message: string;
+    error: string;
+  };
+}
+
+export interface TokenResponse {
+  access_token: string;
+  refresh_token: string;
+  ttl: number;
+  expires_in: number;
+  token_type: string;
+  reg_user_resumes_count: number;
+}
+
 export interface SearchResponse {
   objects: Vacancy[];
   total: number;

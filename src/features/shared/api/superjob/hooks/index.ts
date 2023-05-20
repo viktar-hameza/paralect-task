@@ -1,19 +1,7 @@
-import qs from "qs";
 import { useQuery } from "@tanstack/react-query";
-import { axiosInstance } from "@/features/shared/api/superjob/axiosInstance";
-import { SearchResponse, Vacancy } from "../types";
+import { Vacancy } from "../types";
 
-export const getVacancies = (params: SearchParams = DEFAULT_SEARCH_PARAMS) => {
-  return axiosInstance<SearchResponse>({
-    url: `/vacancies/`,
-    method: "get",
-    params: params as Record<string, string>,
-    paramsSerializer: (p) => {
-      console.log(p);
-      return qs.stringify(p, { arrayFormat: "brackets" });
-    },
-  });
-};
+import { getVacancies } from "../requests";
 
 export const useSearch = (
   params: SearchParams = DEFAULT_SEARCH_PARAMS,
@@ -21,7 +9,7 @@ export const useSearch = (
 ) => {
   return useQuery({
     queryKey: ["vacancies", params],
-    queryFn: () => getVacancies(params),
+    queryFn: () => getVacancies({ params }),
     staleTime: 1000 * 60 * 1,
     enabled: true,
     keepPreviousData: true,

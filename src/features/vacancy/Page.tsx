@@ -1,44 +1,47 @@
-import {
-  DEFAULT_SEARCH_PARAMS,
-  getVacancies,
-  useSearch,
-} from "@/features/shared/api/superjob/hooks";
+import { GetServerSideProps } from 'next';
+import { useRouter } from 'next/router';
 import {
   DehydratedState,
   QueryClient,
   dehydrate,
   useQueryClient,
-} from "@tanstack/react-query";
-import { GetServerSideProps } from "next";
-import { useRouter } from "next/router";
+} from '@tanstack/react-query';
+
+import { useSearch } from '@/features/shared/api/superjob/hooks';
+
+import { getVacancies } from '../shared/api/superjob/requests';
+
+import { getAuthAxiosConfig } from '../shared/helpers/auth';
 
 export const getServerSideProps: GetServerSideProps<{
   dehydratedState: DehydratedState;
-}> = async ({ params, req }) => {
-  const isFirstServerCall = !req?.url?.startsWith("/_next/data/");
+}> = async ({ params, req, res }) => {
+  const isFirstServerCall = !req?.url?.startsWith('/_next/data/');
   const queryClient = new QueryClient();
+
+  const { headers, transformRequest } = getAuthAxiosConfig(req, res);
 
   const id = Number(params?.id);
   if (Number.isNaN(id)) {
     return {
       redirect: {
         permanent: false,
-        destination: "/",
+        destination: '/',
       },
       props: {},
     };
   }
 
   if (isFirstServerCall) {
-    await queryClient.prefetchQuery(["vacancies", { ids: [id] }], () =>
-      getVacancies({ ids: [id] })
+    await queryClient.prefetchQuery(['vacancies', { ids: [id] }], () =>
+      getVacancies({ params: { ids: [id] }, headers, transformRequest })
     );
   }
 
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
-      favorites: JSON.parse(req.cookies.favorites || "[]"),
+      favorites: JSON.parse(req.cookies.favorites || '[]'),
     },
   };
 };
@@ -53,7 +56,7 @@ export function Page() {
       // @ts-expect-error
       initialData: () => {
         const d = queryClient
-          .getQueriesData(["vacancies"])
+          .getQueriesData(['vacancies'])
           ?.find(([, data]) => {
             console.log(data);
             // @ts-expect-error
@@ -63,7 +66,7 @@ export function Page() {
             );
             return vacancy;
           });
-        console.log("----", d);
+        console.log('----', d);
         return {
           // @ts-expect-error
           ...d[1],
@@ -79,7 +82,7 @@ export function Page() {
   return (
     <div
       dangerouslySetInnerHTML={{
-        __html: data?.objects[0].vacancyRichText || "",
+        __html: data?.objects[0].vacancyRichText || '',
       }}
     ></div>
   );
