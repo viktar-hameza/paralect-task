@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { Vacancy, SearchParams, QueryOptions } from "../types";
+import { SearchParams, QueryOptions, SearchResponse } from "../types";
 
 import { getCatalogues, getVacancies } from "../requests";
 
 export const useSearch = (
   params: SearchParams = DEFAULT_SEARCH_PARAMS,
-  queryOptions?: QueryOptions
+  queryOptions?: QueryOptions<SearchResponse>
 ) => {
   return useQuery({
     queryKey: ["vacancies", params],
