@@ -6,6 +6,16 @@ export interface ErrorResponse {
   };
 }
 
+export type CataloguesResponse = Array<Catalogue>;
+
+export interface Catalogue {
+  title_rus: string;
+  url_rus: string;
+  title: string;
+  id_parent: number;
+  key: number;
+}
+
 export interface TokenResponse {
   access_token: string;
   refresh_token: string;
@@ -126,4 +136,23 @@ export interface Town {
 export interface Phone {
   number: string;
   additionalNumber: null;
+}
+
+export interface QueryOptions {
+  staleTime?: number;
+  enabled?: boolean;
+  keepPreviousData?: boolean;
+}
+
+export interface SearchParams {
+  count?: number;
+  page?: number;
+  ids?: Array<number>;
+  keyword?: string;
+  catalogues?: string;
+  payment_from?: number;
+  payment_to?: number;
+  published?: number;
+  currency?: string;
+  no_agreement?: number;
 }

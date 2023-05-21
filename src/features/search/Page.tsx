@@ -5,31 +5,46 @@ import { dehydrate, QueryClient, DehydratedState } from "@tanstack/react-query";
 
 import { DEFAULT_SEARCH_PARAMS } from "@/features/shared/api/superjob/hooks";
 
-import { getVacancies } from "../shared/api/superjob/requests";
+import { getCatalogues, getVacancies } from "../shared/api/superjob/requests";
 
 import { VacanciesList } from "@/features/search/components/VacanciesList";
 import { SearchForm } from "./components/SearchForm";
+import { FiltersToolbar } from "./components/FiltersToolbar";
 
 import { getAuthAxiosConfig } from "../shared/helpers/auth";
+
+import { ToolbarFilters } from "./types";
 
 export const getServerSideProps: GetServerSideProps<{
   dehydratedState: DehydratedState;
 }> = async ({ req, res }) => {
+  console.log("Search - getServerSideProps - START");
+
   const isFirstServerCall = !req?.url?.startsWith("/_next/data/");
   const queryClient = new QueryClient();
   const { headers, transformRequest } = getAuthAxiosConfig(req, res);
 
   if (isFirstServerCall) {
-    await queryClient.prefetchQuery(
-      ["vacancies", { ...DEFAULT_SEARCH_PARAMS, keyword: "" }],
-      () =>
-        getVacancies({
-          params: { ...DEFAULT_SEARCH_PARAMS, keyword: "" },
+    await Promise.all([
+      queryClient.prefetchQuery(["catalogues"], () =>
+        getCatalogues({
           headers,
           transformRequest,
         })
-    );
+      ),
+      queryClient.prefetchQuery(
+        ["vacancies", { ...DEFAULT_SEARCH_PARAMS }],
+        () =>
+          getVacancies({
+            params: { ...DEFAULT_SEARCH_PARAMS },
+            headers,
+            transformRequest,
+          })
+      ),
+    ]);
   }
+
+  console.log("Search - getServerSideProps - END");
 
   return {
     props: {
@@ -41,13 +56,31 @@ export const getServerSideProps: GetServerSideProps<{
 
 export function Page() {
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [toolbarFilters, setToolbarFilters] = React.useState<ToolbarFilters>({
+    catalogues: "",
+    payment_from: 0,
+    payment_to: 0,
+  });
 
-  const filters = React.useMemo(
-    () => ({
+  const filters = React.useMemo(() => {
+    return {
       keyword: searchQuery,
-    }),
-    [searchQuery]
-  );
+      catalogues: toolbarFilters.catalogues,
+      currency: "rub",
+      no_agreement:
+        toolbarFilters.payment_from === 0 && toolbarFilters.payment_to === 0
+          ? 0
+          : 1,
+
+      ...(toolbarFilters.payment_from === 0
+        ? {}
+        : { payment_from: toolbarFilters.payment_from }),
+
+      ...(toolbarFilters.payment_to === 0
+        ? {}
+        : { payment_to: toolbarFilters.payment_to }),
+    };
+  }, [searchQuery, toolbarFilters]);
 
   return (
     <>
@@ -58,6 +91,15 @@ export function Page() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <FiltersToolbar
+        initialValue={{
+          catalogues: "",
+          payment_from: 0,
+          payment_to: 0,
+        }}
+        onApply={setToolbarFilters}
+        onClear={setToolbarFilters}
+      />
       <SearchForm initialValue={""} onSubmit={setSearchQuery} />
       <VacanciesList filters={filters} />
     </>

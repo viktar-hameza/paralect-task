@@ -12,7 +12,8 @@ export const VacancyCard = React.memo(({ vacancy }: VacancyCardProps) => {
       <Link href={`/vacancy/${vacancy.id}`} shallow>
         {vacancy.profession} - {vacancy.firm_name} - {vacancy.town.title} -{" "}
       </Link>
-      {vacancy.type_of_work.title} - {vacancy.payment_to} - {vacancy.currency}
+      {vacancy.type_of_work.title} - от {vacancy.payment_from} до{" "}
+      {vacancy.payment_to} - {vacancy.currency}
     </div>
   );
 });

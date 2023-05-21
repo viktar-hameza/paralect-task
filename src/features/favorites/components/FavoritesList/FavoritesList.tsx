@@ -19,6 +19,7 @@ export const FavoritesList = ({ filters = {} }: FavoritesListProps) => {
   const [page, setPage] = React.useState(DEFAULT_SEARCH_PARAMS.page + 1);
   const [count] = React.useState(DEFAULT_SEARCH_PARAMS.count);
   const { data: { objects: vacancies = [], total = 0 } = {} } = useSearch({
+    ...DEFAULT_SEARCH_PARAMS,
     page: page - 1,
     count,
     ...filters,

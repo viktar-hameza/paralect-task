@@ -1,7 +1,8 @@
 import React from "react";
-import Cookie from "js-cookie";
 
 import { Pagination, Button } from "@mantine/core";
+
+import { SearchParams } from "@/features/shared/api/superjob/types";
 
 import {
   useSearch,
@@ -12,10 +13,7 @@ import { useFavorites } from "@/features/shared/components/FavoritesProvider";
 import { VacancyCard } from "@/features/shared/components/VacancyCard/VacancyCard";
 
 interface VacanciesListProps {
-  filters?: {
-    ids?: number[];
-    keyword?: string;
-  };
+  filters?: SearchParams;
   enabled?: boolean;
 }
 
@@ -27,6 +25,7 @@ export const VacanciesList = ({
   const [count] = React.useState(DEFAULT_SEARCH_PARAMS.count);
   const { data: { objects: vacancies = [], total = 0 } = {} } = useSearch(
     {
+      ...DEFAULT_SEARCH_PARAMS,
       page: page - 1,
       count,
       ...filters,
