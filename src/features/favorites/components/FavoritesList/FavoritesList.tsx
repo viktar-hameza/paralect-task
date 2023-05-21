@@ -1,4 +1,7 @@
 import React from "react";
+import { Pagination, Button } from "@mantine/core";
+
+import { SearchParams } from "@/features/shared/api/superjob/types";
 
 import {
   useSearch,
@@ -7,7 +10,6 @@ import {
 import { useFavorites } from "@/features/shared/components/FavoritesProvider";
 
 import { VacancyCard } from "@/features/shared/components/VacancyCard/VacancyCard";
-import { Pagination, Button } from "@mantine/core";
 
 interface FavoritesListProps {
   filters?: {
@@ -16,19 +18,60 @@ interface FavoritesListProps {
 }
 
 export const FavoritesList = ({ filters = {} }: FavoritesListProps) => {
-  const [page, setPage] = React.useState(DEFAULT_SEARCH_PARAMS.page + 1);
-  const [count] = React.useState(DEFAULT_SEARCH_PARAMS.count);
-  const { data: { objects: vacancies = [], total = 0 } = {} } = useSearch({
+  const [isMounted, setIsMounted] = React.useState(false);
+  const totalValue = React.useRef(0);
+  const [searchParams, setSearchParams] = React.useState<SearchParams>({
     ...DEFAULT_SEARCH_PARAMS,
-    page: page - 1,
-    count,
+    page: DEFAULT_SEARCH_PARAMS.page,
+    count: DEFAULT_SEARCH_PARAMS.count,
     ...filters,
   });
   const favorites = useFavorites();
 
-  const pagesTotal = React.useMemo(() => {
-    return Math.ceil(total / count);
-  }, [total, count]);
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (!isMounted) {
+      return;
+    }
+
+    setSearchParams((oldSearchParams) => {
+      // const oldCurrentPage = oldSearchParams.page || 0;
+      // const oldTotalPages = oldSearchParams.count
+      //   ? Math.ceil(totalValue.current / oldSearchParams.count)
+      //   : 0;
+      // const newTotalPages = oldSearchParams.count
+      //   ? Math.ceil(totalValue.current - 1 / oldSearchParams.count)
+      //   : 0;
+
+      return {
+        ...oldSearchParams,
+        ...filters,
+        page: DEFAULT_SEARCH_PARAMS.page,
+      };
+    });
+  }, [isMounted, filters]);
+
+  const { data: { objects: vacancies = [], total = 0 } = {} } =
+    useSearch(searchParams);
+
+  React.useEffect(() => {
+    totalValue.current = total;
+  }, [total]);
+
+  const pagination = React.useMemo(() => {
+    const totalPages = searchParams.count
+      ? Math.ceil(total / searchParams.count)
+      : 0;
+
+    return {
+      page: typeof searchParams.page === "number" ? searchParams.page + 1 : 1,
+      totalPages,
+      isVisible: totalPages > 1,
+    };
+  }, [searchParams, total]);
 
   return (
     <div>
@@ -52,8 +95,15 @@ export const FavoritesList = ({ filters = {} }: FavoritesListProps) => {
           );
         })}
       </ul>
-      {Boolean(pagesTotal) && (
-        <Pagination value={page} onChange={setPage} total={pagesTotal} />
+
+      {pagination.isVisible && (
+        <Pagination
+          value={pagination.page}
+          onChange={(page) =>
+            setSearchParams({ ...searchParams, page: page - 1 })
+          }
+          total={pagination.totalPages}
+        />
       )}
     </div>
   );

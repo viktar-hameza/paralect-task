@@ -21,22 +21,38 @@ export const VacanciesList = ({
   filters = {},
   enabled = true,
 }: VacanciesListProps) => {
-  const [page, setPage] = React.useState(DEFAULT_SEARCH_PARAMS.page + 1);
-  const [count] = React.useState(DEFAULT_SEARCH_PARAMS.count);
-  const { data: { objects: vacancies = [], total = 0 } = {} } = useSearch(
-    {
-      ...DEFAULT_SEARCH_PARAMS,
-      page: page - 1,
-      count,
-      ...filters,
-    },
-    { enabled }
-  );
+  const [searchParams, setSearchParams] = React.useState<SearchParams>({
+    ...DEFAULT_SEARCH_PARAMS,
+    page: DEFAULT_SEARCH_PARAMS.page,
+    count: DEFAULT_SEARCH_PARAMS.count,
+    ...filters,
+  });
   const favorites = useFavorites();
 
-  const pagesTotal = React.useMemo(() => {
-    return Math.ceil(total / count);
-  }, [total, count]);
+  React.useEffect(() => {
+    setSearchParams((oldSearchParams) => ({
+      ...oldSearchParams,
+      ...filters,
+      page: DEFAULT_SEARCH_PARAMS.page,
+    }));
+  }, [filters]);
+
+  const { data: { objects: vacancies = [], total = 0 } = {} } = useSearch(
+    searchParams,
+    { enabled }
+  );
+
+  const pagination = React.useMemo(() => {
+    const totalPages = searchParams.count
+      ? Math.ceil(total / searchParams.count)
+      : 0;
+
+    return {
+      page: typeof searchParams.page === "number" ? searchParams.page + 1 : 1,
+      totalPages,
+      isVisible: totalPages > 1,
+    };
+  }, [searchParams, total]);
 
   return (
     <div>
@@ -60,8 +76,14 @@ export const VacanciesList = ({
           );
         })}
       </ul>
-      {Boolean(pagesTotal) && (
-        <Pagination value={page} onChange={setPage} total={pagesTotal} />
+      {pagination.isVisible && (
+        <Pagination
+          value={pagination.page}
+          onChange={(page) =>
+            setSearchParams({ ...searchParams, page: page - 1 })
+          }
+          total={pagination.totalPages}
+        />
       )}
     </div>
   );
