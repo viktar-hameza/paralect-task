@@ -18,7 +18,6 @@ interface FavoritesListProps {
 }
 
 export const FavoritesList = ({ filters = {} }: FavoritesListProps) => {
-  const [isMounted, setIsMounted] = React.useState(false);
   const totalValue = React.useRef(0);
   const [searchParams, setSearchParams] = React.useState<SearchParams>({
     ...DEFAULT_SEARCH_PARAMS,
@@ -29,30 +28,22 @@ export const FavoritesList = ({ filters = {} }: FavoritesListProps) => {
   const favorites = useFavorites();
 
   React.useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  React.useEffect(() => {
-    if (!isMounted) {
-      return;
-    }
-
     setSearchParams((oldSearchParams) => {
-      // const oldCurrentPage = oldSearchParams.page || 0;
-      // const oldTotalPages = oldSearchParams.count
-      //   ? Math.ceil(totalValue.current / oldSearchParams.count)
-      //   : 0;
-      // const newTotalPages = oldSearchParams.count
-      //   ? Math.ceil(totalValue.current - 1 / oldSearchParams.count)
-      //   : 0;
+      const oldCurrentPage = oldSearchParams.page || 0;
+      const newTotalPages = oldSearchParams.count
+        ? Math.ceil((totalValue.current - 1) / oldSearchParams.count)
+        : 0;
 
       return {
         ...oldSearchParams,
         ...filters,
-        page: DEFAULT_SEARCH_PARAMS.page,
+        page:
+          oldCurrentPage > newTotalPages - 1 && newTotalPages > 0
+            ? newTotalPages - 1
+            : oldCurrentPage,
       };
     });
-  }, [isMounted, filters]);
+  }, [filters]);
 
   const { data: { objects: vacancies = [], total = 0 } = {} } =
     useSearch(searchParams);
