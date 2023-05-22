@@ -62,16 +62,15 @@ export const VacanciesList = ({
 
           return (
             <li key={vacancy.id}>
-              <VacancyCard vacancy={vacancy} />
-              <Button
-                onClick={() => {
+              <VacancyCard
+                vacancy={vacancy}
+                isFavorite={isFavorite}
+                onClickFavorite={() => {
                   isFavorite
                     ? favorites.remove(vacancy.id)
                     : favorites.add(vacancy.id);
                 }}
-              >
-                {isFavorite ? "Remove" : "Add"}
-              </Button>
+              />
             </li>
           );
         })}
