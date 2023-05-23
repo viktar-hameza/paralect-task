@@ -3,6 +3,8 @@ import { GetServerSideProps } from "next";
 import Head from "next/head";
 import { dehydrate, QueryClient, DehydratedState } from "@tanstack/react-query";
 
+import { Grid } from "@mantine/core";
+
 import { DEFAULT_SEARCH_PARAMS } from "@/features/shared/api/superjob/hooks";
 
 import { getCatalogues, getVacancies } from "../shared/api/superjob/requests";
@@ -91,17 +93,23 @@ export function Page() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <FiltersToolbar
-        initialValue={{
-          catalogues: "",
-          payment_from: 0,
-          payment_to: 0,
-        }}
-        onApply={setToolbarFilters}
-        onClear={setToolbarFilters}
-      />
-      <SearchForm initialValue={""} onSubmit={setSearchQuery} />
-      <VacanciesList filters={filters} />
+      <Grid columns={10} gutter={28}>
+        <Grid.Col md={3} sm={10}>
+          <FiltersToolbar
+            initialValue={{
+              catalogues: "",
+              payment_from: 0,
+              payment_to: 0,
+            }}
+            onApply={setToolbarFilters}
+            onClear={setToolbarFilters}
+          />
+        </Grid.Col>
+        <Grid.Col md={7} sm={10}>
+          <SearchForm initialValue={""} onSubmit={setSearchQuery} />
+          <VacanciesList filters={filters} />
+        </Grid.Col>
+      </Grid>
     </>
   );
 }

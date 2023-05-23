@@ -142,7 +142,7 @@ export interface QueryOptions<TQueryFnData> {
   staleTime?: number;
   enabled?: boolean;
   keepPreviousData?: boolean;
-  initialData: () => TQueryFnData | undefined;
+  initialData?: () => TQueryFnData | undefined;
 }
 
 export interface SearchParams {

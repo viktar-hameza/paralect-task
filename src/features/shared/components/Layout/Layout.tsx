@@ -1,33 +1,47 @@
-import { withTheme } from '@emotion/react';
-import { createStyles, Header, Container, NavLink, rem } from '@mantine/core';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import Image from 'next/image';
+import { createStyles, Container } from "@mantine/core";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import Image from "next/image";
 
 interface LayoutProps extends React.PropsWithChildren {}
 
 const MENU_LINKS = [
   {
-    href: '/',
-    label: 'Поиск вакансий',
+    href: "/",
+    label: "Поиск вакансий",
   },
   {
-    href: '/favorites',
-    label: 'Избранное',
+    href: "/favorites",
+    label: "Избранное",
   },
 ];
 
 const useStyles = createStyles((theme) => ({
-  header: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    height: '100%',
+  headerContainer: {
+    height: "84px",
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    "@media (max-width: 770px)": {
+      flexDirection: "column",
+      justifyContent: "center",
+    },
   },
   nav: {
-    display: 'flex',
-    gap: '60px',
-    marginLeft: '280px',
+    display: "flex",
+    gap: "60px",
+    marginLeft: "280px",
+    "@media (max-width: 770px)": {
+      marginTop: "10px",
+      marginLeft: "0",
+    },
+  },
+  main: {
+    position: "relative",
+    paddingTop: "40px",
+    paddingBottom: "40px",
+    backgroundColor: theme.colors.greyScale[1],
+    flex: "1",
   },
   link: {},
   linkActive: {
@@ -41,10 +55,10 @@ export const Layout = ({ children }: LayoutProps) => {
 
   return (
     <>
-      <Header height={84}>
-        <Container size='1148px' className={classes.header}>
-          <Link href='/'>
-            <Image src='/logo-img.svg' width={141} height={36} alt='' />
+      <header>
+        <Container size="1148px" className={classes.headerContainer}>
+          <Link href="/">
+            <Image src="/logo-img.svg" width={141} height={36} alt="" />
           </Link>
 
           <div className={classes.nav} style={{}}>
@@ -61,10 +75,10 @@ export const Layout = ({ children }: LayoutProps) => {
             ))}
           </div>
         </Container>
-      </Header>
+      </header>
 
-      <main>
-        <Container size='1148px'>{children}</Container>
+      <main className={classes.main}>
+        <Container size="1148px">{children}</Container>
       </main>
     </>
   );

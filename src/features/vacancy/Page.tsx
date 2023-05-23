@@ -13,6 +13,22 @@ import { SearchResponse } from "../shared/api/superjob/types";
 import { getVacancies } from "../shared/api/superjob/requests";
 
 import { getAuthAxiosConfig } from "../shared/helpers/auth";
+import { useFavorites } from "../shared/components/FavoritesProvider";
+import { VacancyCard } from "../shared/components/VacancyCard";
+import {
+  Card,
+  Space,
+  TypographyStylesProvider,
+  createStyles,
+} from "@mantine/core";
+
+const useStyles = createStyles((theme) => ({
+  content: {
+    ul: {
+      listStyle: "initial",
+    },
+  },
+}));
 
 export const getServerSideProps: GetServerSideProps<{
   dehydratedState: DehydratedState;
@@ -48,6 +64,8 @@ export const getServerSideProps: GetServerSideProps<{
 };
 
 export function Page() {
+  const { classes, cx } = useStyles();
+  const favorites = useFavorites();
   const queryClient = useQueryClient();
   const router = useRouter();
   const vacancyId = Number(router.query.id);
@@ -81,11 +99,30 @@ export function Page() {
       },
     }
   );
+  const isFavorite = favorites.has(vacancyId);
   return (
-    <div
-      dangerouslySetInnerHTML={{
-        __html: data?.objects[0].vacancyRichText || "",
-      }}
-    ></div>
+    <>
+      {data?.objects[0] && (
+        <VacancyCard
+          vacancy={data?.objects[0]}
+          isFavorite={isFavorite}
+          isVacancyPage
+          onClickFavorite={() => {
+            isFavorite ? favorites.remove(vacancyId) : favorites.add(vacancyId);
+          }}
+        />
+      )}
+
+      <Space h="md" />
+      <Card withBorder p="xl" radius="md" className={classes.content}>
+        <TypographyStylesProvider>
+          <div
+            dangerouslySetInnerHTML={{
+              __html: data?.objects[0].vacancyRichText || "",
+            }}
+          ></div>
+        </TypographyStylesProvider>
+      </Card>
+    </>
   );
 }

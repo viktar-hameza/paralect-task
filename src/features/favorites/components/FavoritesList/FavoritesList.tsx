@@ -1,5 +1,10 @@
 import React from "react";
-import { Pagination, Button } from "@mantine/core";
+import {
+  Pagination,
+  SimpleGrid,
+  createStyles,
+  LoadingOverlay,
+} from "@mantine/core";
 
 import { SearchParams } from "@/features/shared/api/superjob/types";
 
@@ -17,7 +22,16 @@ interface FavoritesListProps {
   };
 }
 
+const useStyles = createStyles((theme) => ({
+  listCards: {
+    display: "Flex",
+    flexDirection: "column",
+    gap: "16px",
+  },
+}));
+
 export const FavoritesList = ({ filters = {} }: FavoritesListProps) => {
+  const { classes } = useStyles();
   const totalValue = React.useRef(0);
   const [searchParams, setSearchParams] = React.useState<SearchParams>({
     ...DEFAULT_SEARCH_PARAMS,
@@ -45,7 +59,7 @@ export const FavoritesList = ({ filters = {} }: FavoritesListProps) => {
     });
   }, [filters]);
 
-  const { data: { objects: vacancies = [], total = 0 } = {} } =
+  const { isFetching, data: { objects: vacancies = [], total = 0 } = {} } =
     useSearch(searchParams);
 
   React.useEffect(() => {
@@ -65,23 +79,28 @@ export const FavoritesList = ({ filters = {} }: FavoritesListProps) => {
   }, [searchParams, total]);
 
   return (
-    <div>
-      <ul>
+    <SimpleGrid cols={1} verticalSpacing="xl">
+      <LoadingOverlay
+        visible={isFetching}
+        loaderProps={{ size: "xl" }}
+        overlayBlur={2}
+      />
+
+      <ul className={classes.listCards}>
         {vacancies.map((vacancy) => {
           const isFavorite = favorites.has(vacancy.id);
 
           return (
             <li key={vacancy.id}>
-              <VacancyCard vacancy={vacancy} />
-              <Button
-                onClick={() => {
+              <VacancyCard
+                vacancy={vacancy}
+                isFavorite={isFavorite}
+                onClickFavorite={() => {
                   isFavorite
                     ? favorites.remove(vacancy.id)
                     : favorites.add(vacancy.id);
                 }}
-              >
-                {isFavorite ? "Remove" : "Disabled"}
-              </Button>
+              />
             </li>
           );
         })}
@@ -89,6 +108,7 @@ export const FavoritesList = ({ filters = {} }: FavoritesListProps) => {
 
       {pagination.isVisible && (
         <Pagination
+          position="center"
           value={pagination.page}
           onChange={(page) =>
             setSearchParams({ ...searchParams, page: page - 1 })
@@ -96,6 +116,6 @@ export const FavoritesList = ({ filters = {} }: FavoritesListProps) => {
           total={pagination.totalPages}
         />
       )}
-    </div>
+    </SimpleGrid>
   );
 };

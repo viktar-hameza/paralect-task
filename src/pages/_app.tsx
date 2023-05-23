@@ -3,7 +3,7 @@ import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { Inter } from "next/font/google";
 
-import { MantineProvider } from "@mantine/core";
+import { MantineProvider, ButtonStylesParams } from "@mantine/core";
 import { FavoritesProvider } from "@/features/shared/components/FavoritesProvider";
 
 import {
@@ -45,6 +45,48 @@ export default function App({ Component, pageProps }: AppProps) {
             "#1971C2",
             "#1864AB",
           ],
+          greyScale: [
+            "#FFFFFF",
+            "#F5F5F5",
+            "#EAEBED",
+            "#D5D6DC",
+            "#ACADB9",
+            "#7B7C88",
+            "#232134",
+            "#495057",
+            "#343A40",
+            "#212529",
+          ],
+        },
+        components: {
+          Pagination: {
+            styles: (theme) => ({
+              control: {
+                "&[data-active]": {
+                  backgroundColor: theme.colors.blue[4],
+                },
+              },
+            }),
+          },
+          Button: {
+            styles: (theme, params: ButtonStylesParams, { variant }) => ({
+              root: {
+                fontSize: variant === "filled" ? "14px" : undefined,
+                fontWeight: 500,
+                borderRadius: "8px",
+                backgroundColor:
+                  variant === "filled" ? theme.colors.blue[4] : undefined,
+                "&:hover": {
+                  backgroundColor:
+                    variant === "filled" ? theme.colors.blue[3] : undefined,
+                },
+                "&:active": {
+                  backgroundColor:
+                    variant === "filled" ? theme.colors.blue[6] : undefined,
+                },
+              },
+            }),
+          },
         },
       }}
     >

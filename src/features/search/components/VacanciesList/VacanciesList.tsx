@@ -1,6 +1,11 @@
 import React from "react";
 
-import { Pagination, Button } from "@mantine/core";
+import {
+  SimpleGrid,
+  Pagination,
+  createStyles,
+  LoadingOverlay,
+} from "@mantine/core";
 
 import { SearchParams } from "@/features/shared/api/superjob/types";
 
@@ -11,16 +16,26 @@ import {
 import { useFavorites } from "@/features/shared/components/FavoritesProvider";
 
 import { VacancyCard } from "@/features/shared/components/VacancyCard/VacancyCard";
+import { Empty } from "@/features/shared/components/Empty/Emty";
 
 interface VacanciesListProps {
   filters?: SearchParams;
   enabled?: boolean;
 }
 
+const useStyles = createStyles((theme) => ({
+  listCards: {
+    display: "Flex",
+    flexDirection: "column",
+    gap: "16px",
+  },
+}));
+
 export const VacanciesList = ({
   filters = {},
   enabled = true,
 }: VacanciesListProps) => {
+  const { classes } = useStyles();
   const [searchParams, setSearchParams] = React.useState<SearchParams>({
     ...DEFAULT_SEARCH_PARAMS,
     page: DEFAULT_SEARCH_PARAMS.page,
@@ -37,10 +52,8 @@ export const VacanciesList = ({
     }));
   }, [filters]);
 
-  const { data: { objects: vacancies = [], total = 0 } = {} } = useSearch(
-    searchParams,
-    { enabled }
-  );
+  const { isFetching, data: { objects: vacancies = [], total = 0 } = {} } =
+    useSearch(searchParams, { enabled });
 
   const pagination = React.useMemo(() => {
     const totalPages = searchParams.count
@@ -55,35 +68,47 @@ export const VacanciesList = ({
   }, [searchParams, total]);
 
   return (
-    <div>
-      <ul>
-        {vacancies.map((vacancy) => {
-          const isFavorite = favorites.has(vacancy.id);
+    <>
+      <LoadingOverlay
+        visible={isFetching}
+        loaderProps={{ size: "xl" }}
+        overlayBlur={2}
+      />
 
-          return (
-            <li key={vacancy.id}>
-              <VacancyCard
-                vacancy={vacancy}
-                isFavorite={isFavorite}
-                onClickFavorite={() => {
-                  isFavorite
-                    ? favorites.remove(vacancy.id)
-                    : favorites.add(vacancy.id);
-                }}
-              />
-            </li>
-          );
-        })}
-      </ul>
-      {pagination.isVisible && (
-        <Pagination
-          value={pagination.page}
-          onChange={(page) =>
-            setSearchParams({ ...searchParams, page: page - 1 })
-          }
-          total={pagination.totalPages}
-        />
+      {vacancies.length === 0 && !isFetching && (
+        <Empty text="Упс, ничего не найдено!" />
       )}
-    </div>
+      <SimpleGrid cols={1} verticalSpacing="xl">
+        <ul className={classes.listCards}>
+          {vacancies.map((vacancy) => {
+            const isFavorite = favorites.has(vacancy.id);
+
+            return (
+              <li key={vacancy.id}>
+                <VacancyCard
+                  vacancy={vacancy}
+                  isFavorite={isFavorite}
+                  onClickFavorite={() => {
+                    isFavorite
+                      ? favorites.remove(vacancy.id)
+                      : favorites.add(vacancy.id);
+                  }}
+                />
+              </li>
+            );
+          })}
+        </ul>
+        {pagination.isVisible && (
+          <Pagination
+            position="center"
+            value={pagination.page}
+            onChange={(page) =>
+              setSearchParams({ ...searchParams, page: page - 1 })
+            }
+            total={pagination.totalPages}
+          />
+        )}
+      </SimpleGrid>
+    </>
   );
 };
