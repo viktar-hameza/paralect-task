@@ -42,6 +42,7 @@ export const SearchForm = ({
       }}
     >
       <Input
+        data-elem={"search-input"}
         style={{ fontSize: "14px" }}
         icon={<SearchIcon />}
         radius="8px"
@@ -52,7 +53,12 @@ export const SearchForm = ({
           setValue(event.target.value)
         }
       />
-      <Button radius="7px" className={classes.formSearchBtn} type="submit">
+      <Button
+        radius="7px"
+        className={classes.formSearchBtn}
+        type="submit"
+        data-elem={"search-button"}
+      >
         Поиск
       </Button>
     </form>

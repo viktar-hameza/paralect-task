@@ -124,6 +124,7 @@ export const FiltersToolbar = ({
             Отрасль
           </Text>
           <Select
+            data-elem={"industry-select"}
             classNames={{
               item: classes.item,
             }}
@@ -145,6 +146,7 @@ export const FiltersToolbar = ({
           </Text>
           <SimpleGrid cols={1} verticalSpacing="xs">
             <NumberInput
+              data-elem={"salary-from-input"}
               classNames={{
                 control: classes.control,
                 rightSection: classes.rightSection,
@@ -158,6 +160,7 @@ export const FiltersToolbar = ({
               placeholder="От"
             />
             <NumberInput
+              data-elem={"salary-to-input"}
               classNames={{
                 control: classes.control,
                 rightSection: classes.rightSection,
@@ -175,6 +178,7 @@ export const FiltersToolbar = ({
       </SimpleGrid>
 
       <Button
+        data-elem={"search-button"}
         variant="filled"
         size="md"
         h={40}

@@ -41,6 +41,7 @@ export const VacancyCard = React.memo(
     const { classes } = useStyles();
     return (
       <Card
+        data-elem={`vacancy-${vacancy.id}`}
         withBorder
         p="xl"
         radius="md"
@@ -86,7 +87,11 @@ export const VacancyCard = React.memo(
             {vacancy.town.title}
           </Text>
         </div>
-        <button className={classes.button} onClick={() => onClickFavorite()}>
+        <button
+          data-elem={`vacancy-${vacancy.id}-shortlist-button`}
+          className={classes.button}
+          onClick={() => onClickFavorite()}
+        >
           <FavoritesIcon isFavorite={isFavorite} />
         </button>
       </Card>
